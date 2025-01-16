@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe lernen und üben</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 80%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .question-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+        }
+
+        .question-item.highlighted {
+            background-color: #f0f8ff;
+        }
+
+        .question-item input {
+            width: 80px;
+            font-size: 1rem;
+            padding: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        #submit-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .correct {
+            background-color: #4CAF50; /* Grün für richtig */
+        }
+
+        .incorrect {
+            background-color: #f44336; /* Rot für falsch */
+        }
+
+        #score {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #fff;
+            padding: 0.3em;
+            z-index: 100;
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div class="container" id="question-container">
+        <!-- Fragen werden hier dynamisch hinzugefügt -->
+    </div>
+    <button id="submit-btn">Submit</button>
+
+    <script>
+        const operators = ['+', '-', '×', '÷'];
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let correctAnswers = [];
+        let score = 0;
+        
+        if (localStorage.getItem('MathLearningScore')){
+            score = parseFloat(localStorage.getItem('MathLearningScore'));
+        }
+        document.getElementById("score").textContent = `Score: ${score}`;
+
+        // Funktion zum Generieren der Fragen
+        function generateQuestion(num1, num2, num3, operator1, operator2) {
+            let question = `${num1} ${operator1} ${num2}`;
+            for (let i = 0; i < num3; i++) {
+                const num4 = Math.floor(Math.random() * 10) + 1;
+                const num5 = Math.floor(Math.random() * 10) + 1;
+                const operator3 = operators[Math.floor(Math.random() * operators.length)];
+                question += ` ${operator3} ${num4} ${operator3} ${num5}`;
+            }
+            return question;
+        }
+
+        // Funktion zur Berechnung der Antwort
+        function calculate(expression) {
+            try {
+                expression = expression.replace(/×/g, '*').replace(/÷/g, '/');
+                let result = eval(expression);
+
+                // Formatieren des Ergebnisses auf maximal 2 Dezimalstellen
+                if (result % 1 === 0) {
+                    return result.toString(); // Ganze Zahl ohne Dezimalstellen
+                } else {
+                    let formattedResult = result.toFixed(2); // 2 Dezimalstellen
+                    return parseFloat(formattedResult).toString(); // Entfernt unnötige Nullen
+                }
+            } catch (error) {
+                console.error("Fehler bei der Berechnung:", error);
+                return null;
+            }
+        }
+
+        // Funktion zur Validierung der Antwort
+        function validateAnswer(expression) {
+            let answer = calculate(expression);
+            // Solange die Antwort mehr als 2 Dezimalstellen hat, die Frage ändern
+            while (answer.includes('.') && answer.split('.')[1].length > 2) {
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const num3 = Math.floor(Math.random() * 3) + 1;
+                const operator1 = operators[Math.floor(Math.random() * operators.length)];
+                const operator2 = operators[Math.floor(Math.random() * operators.length)];
+
+                expression = generateQuestion(num1, num2, num3, operator1, operator2);
+                answer = calculate(expression);
+            }
+            return { expression, answer };
+        }
+
+        // Fragen generieren
+        function generateQuestions() {
+            questions = [];
+            correctAnswers = [];
+            currentQuestionIndex = 0; // Index der hervorgehobenen Frage zurücksetzen
+            for (let i = 0; i < 100; i++) {
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const num3 = Math.floor(Math.random() * 3) + 1;
+                const operator1 = operators[Math.floor(Math.random() * operators.length)];
+                const operator2 = operators[Math.floor(Math.random() * operators.length)];
+        
+                let { expression, answer } = validateAnswer(generateQuestion(num1, num2, num3, operator1, operator2));
+        
+                questions.push({ expression, correctAnswer: answer });
+            }
+        
+            renderQuestions();
+            highlightCurrentQuestion(); // Hervorhebung erneut aufrufen
+        }
+        
+
+        // Fragen rendern
+        function renderQuestions() {
+            const container = document.getElementById("question-container");
+            container.innerHTML = '<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>';
+            questions.forEach((q, index) => {
+                const questionItem = document.createElement("div");
+                questionItem.classList.add("question-item");
+                questionItem.innerHTML = `
+                    <div>${q.expression}</div>
+                    <input type="text" id="answer-${index}" />
+                `;
+                container.appendChild(questionItem);
+            });
+            container.innerHTML += '<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>';
+
+            highlightCurrentQuestion();
+        }
+
+        // Frage hervorheben
+        function highlightCurrentQuestion() {
+            const allQuestions = document.querySelectorAll(".question-item");
+            allQuestions.forEach((question, index) => {
+                if (index === currentQuestionIndex) {
+                    question.classList.add("highlighted");
+                    question.scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                    question.classList.remove("highlighted");
+                }
+            });
+        }
+
+        // Opazität und Unschärfe basierend auf Scrollposition ändern
+        function updateQuestionStylesOnScroll() {
+            const container = document.getElementById("question-container");
+            const allQuestions = document.querySelectorAll(".question-item");
+            const containerRect = container.getBoundingClientRect();
+            const containerCenter = containerRect.top + containerRect.height / 2;
+
+            allQuestions.forEach((question, index) => {
+                const questionRect = question.getBoundingClientRect();
+                const distance = Math.abs(containerCenter - (questionRect.top + questionRect.height / 2));
+
+                // Berechne den Anteil der Entfernung vom Zentrum
+                const maxDistance = window.innerHeight / 2;
+                const opacity = index === currentQuestionIndex ? 1 : Math.max(0.1, 1 - (distance / maxDistance));
+                const blur = index === currentQuestionIndex ? 0 : Math.min(5, (distance / maxDistance) * 5);
+
+                question.style.opacity = opacity;
+                question.style.filter = `blur(${blur}px)`;
+            });
+        }
+
+        // Überprüfen, ob die Antwort richtig ist
+        function checkAnswer() {
+            const userAnswer = document.getElementById(`answer-${currentQuestionIndex}`).value;
+            const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+            const answerField = document.getElementById(`answer-${currentQuestionIndex}`);
+
+            if (userAnswer === correctAnswer) {
+                // Antwort ist richtig
+                answerField.classList.add("correct");
+                answerField.classList.remove("incorrect");
+                score++;
+                localStorage.setItem('MathLearningScore', score);
+            } else {
+                // Antwort ist falsch, die richtige Antwort anzeigen
+                answerField.value = correctAnswer;
+                answerField.classList.add("incorrect");
+                answerField.classList.remove("correct");
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex >= questions.length) {
+                generateQuestions(); // Fragen neu generieren
+            } else {
+                highlightCurrentQuestion(); // Nur die aktuelle Frage wird hervorgehoben
+            }
+
+            // Score anzeigen
+            document.getElementById("score").textContent = `Score: ${score}`;
+        }
+
+        // Event Listener für Submit-Button
+        document.getElementById("submit-btn").addEventListener("click", checkAnswer);
+
+        // Event Listener für Scrollen
+        document.getElementById("question-container").addEventListener("scroll", updateQuestionStylesOnScroll);
+
+        // Initialisierung
+        generateQuestions();
+    </script>
+</body>
+</html>
