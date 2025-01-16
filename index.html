@@ -249,6 +249,8 @@
                 // Antwort ist richtig
                 answerField.classList.add("correct");
                 answerField.classList.remove("incorrect");
+                answerField.parentElement.classList.add("correct");
+                answerField.parentElement.classList.remove("incorrect");
                 score++;
                 localStorage.setItem('MathLearningScore', score);
             } else {
@@ -256,6 +258,8 @@
                 answerField.value = correctAnswer;
                 answerField.classList.add("incorrect");
                 answerField.classList.remove("correct");
+                answerField.parentElement.classList.add("incorrect");
+                answerField.parentElement.classList.remove("correct");
             }
 
             currentQuestionIndex++;
