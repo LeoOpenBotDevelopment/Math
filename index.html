@@ -15,6 +15,8 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            color: #000000;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -54,7 +56,7 @@
             border: 2px solid #f0f8ff;
         }
 
-        .question-item input:focus{
+        .question-item input:focus {
             outline: none;
         }
 
@@ -78,22 +80,22 @@
         }
 
         .correct {
-            background-color: #4CAF50; /* Grün für richtig */
+            background-color: #4CAF50;
             border: 2px solid green;
         }
 
         .incorrect {
-            background-color: #f44336; /* Rot für falsch */
+            background-color: #f44336;
             border: 2px solid red;
         }
 
-        .question-item input.incorrect{
-            background-color: #f44336; /* Rot für falsch */
+        .question-item input.incorrect {
+            background-color: #f44336;
             border: 2px solid red;
         }
 
-        .question-item input.correct{
-            background-color: #4CAF50; /* Grün für richtig */
+        .question-item input.correct {
+            background-color: #4CAF50;
             border: 2px solid green;
         }
 
@@ -108,8 +110,55 @@
             z-index: 100;
             font-family: 'Arial', sans-serif;
         }
+
+        /* Dark theme */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+
+            .question-item {
+                border: 2px solid #333;
+                background-color: #1e1e1e;
+            }
+
+            .question-item.highlighted {
+                background-color: #333333;
+                border: 2px solid #555;
+            }
+
+            .question-item input {
+                border: 2px solid #333;
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+
+            .question-item input.correct {
+                background-color: #2e7d32;
+                border: 2px solid #66bb6a;
+            }
+
+            .question-item input.incorrect {
+                background-color: #c62828;
+                border: 2px solid #e57373;
+            }
+
+            #submit-btn {
+                background-color: #2e7d32;
+            }
+
+            #submit-btn:hover {
+                background-color: #1b5e20;
+            }
+
+            #score {
+                color: #ffffff;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="score">Score: 0</div>
     <div class="container" id="question-container">
